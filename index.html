@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Geofencing with Navigator API</title>
+  </head>
+  <body>
+    <h1>Geofencing with Navigator API</h1>
+	<div id="result"></div>
+
+    <script>
+      const geofence = [
+        [28.6340511, 77.4461386],
+        [28.6360934, 77.4449185],
+        [28.6344215, 77.4454356],
+        [28.6325544, 77.4362110],
+      ];
+
+	  const resultDiv = document.getElementById("result");
+
+	  function isWithinGeofence(position) {
+        let isWithin = false;
+        const userLocation = [position.coords.latitude, position.coords.longitude];
+
+        for (let i = 0; i < geofence.length; i++) {
+          const xi = geofence[i][0], yi = geofence[i][1];
+          const xj = geofence[(i + 1) % geofence.length][0], yj = geofence[(i + 1) % geofence.length][1];
+          const intersect = ((yi > userLocation[1]) !== (yj > userLocation[1])) && (userLocation[0] < (xj - xi) * (userLocation[1] - yi) / (yj - yi) + xi);
+
+          if (intersect) {
+            isWithin = !isWithin;
+          }
+        }
+
+        if (isWithin) {
+          console.log("You are inside the geofence!");
+          resultDiv.innerHTML = `<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfL-3XEPavkoSJY1sCUbiou8CSPIYcLAqSKqHlO749N-W9-SQ/viewform?embedded=true" width="640" height="643" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>`;
+        } else {
+          console.log("You are outside the geofence!");
+          resultDiv.innerHTML = "You are outside.";
+        }
+      }
+
+      function handleGeolocationError(error) {
+        console.error(`Geolocation error: ${error.message}`);
+      }
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(isWithinGeofence, handleGeolocationError);
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+    </script>
+  </body>
+</html>
